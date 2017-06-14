@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <title>Commands to the Dog</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            div {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                display: flex;
+                justify-content: space-around;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .pointer {
+                cursor: pointer;
+            }
+        </style>
+    </head>
+    <body>
+        <div>
+            <img src="./images/fulls/ball.png" class="pointer" style="width: 100px;" onclick="document.getElementById('dogSit').src='images/fulls/dog_sit.png'" />
+            <img src="./images/fulls/bone.png" class="pointer" style="width: 100px;" onclick="document.getElementById('dogSit').src='images/fulls/dog_stand.png'" />    
+            <img id="dogSit" src="./images/fulls/dog_sit.png" style="width: 300px;" />
+        </div>
+    </body>
+</html>

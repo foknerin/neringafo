@@ -1,0 +1,163 @@
+
+/* rock-paper-scissors */
+
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+.header-item-text {
+    display: block;
+    width: 70%;
+    margin: auto;
+}
+
+.item-click {
+    display: flex;
+    justify-content: space-around;
+    align-items: baseline;
+    cursor: pointer;
+    margin-bottom: 60px;
+}
+
+#img-rock, #img-scissors {
+    width: 30%;
+}
+
+#img-paper {
+    width: 20%;
+}
+
+.back_btn {
+    width: 133px;
+    height: 70px;
+    background: url("./../images/img/back_btn_.png") no-repeat left top;
+    background-size: 400px auto;
+    cursor: pointer;
+    float: right;
+    margin: 0 45px 30px 0;
+}
+    
+.back_btn:hover {
+    background-position: -133px 0px;
+}
+
+.back_btn:active {
+    background-position: -266px 0px;
+}
+
+.your_choice_container, .result_container, .computer_choice_container  {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 50px;
+}
+
+.item-text, #user-choice-img, #result-img-container, #computer-choice-img {
+    width: 60%;
+}
+
+.new_try_btn {
+    width: 200px;
+    height: 100px;
+    background: url("./../images/img/new_try_btn_.png") no-repeat left top;
+    cursor: pointer;
+}
+
+.new_try_btn:hover {
+    background-position: -200px 0px;
+}
+
+.new_try_btn:active {
+    background-position: -400px 0px;
+}
+
+ /*********** RESPONSIVE *****************/
+
+/* Portrait phones and smaller */
+@media(max-width:480px) {
+
+    .item-click {
+        margin-bottom: 45px;
+    }
+
+    .header-item-text {
+        margin: 40px auto;
+    }
+
+    #game-result {
+        flex-wrap: wrap;
+        align-items: baseline;
+    }
+    
+    .item-text {
+        width: 80%;
+    }
+
+    .your_choice_container {
+        order: 1;
+        width: 50%;
+    }
+    
+    .computer_choice_container {
+        order: 2;
+        width: 50%;
+    }
+    
+    .result_container {
+        order: 3;
+    }
+    
+    #user-choice-img, #result-img-container, #computer-choice-img {
+        width: 60%;
+    }
+    
+    .new_try_btn {
+        width: 133px;
+        height: 70px;
+        background: url("./../images/img/new_try_btn_.png") no-repeat left top;
+        background-size: 400px auto;
+        cursor: pointer;
+    }
+
+    .new_try_btn:hover {
+        background-position: -133px 0px;
+    }
+
+    .new_try_btn:active {
+        background-position: -266px 0px;
+    }
+}
+
+/* Landscape phones and portrait tablets */
+@media(min-width:481px) and (max-width:767px) {
+    
+    .header-item-text {
+        margin: 20px auto;
+    }
+
+    #game-result {
+        flex-wrap: wrap;
+        align-items: baseline;
+    }
+    
+    .your_choice_container {
+        order: 1;
+        width: 50%;
+        margin-top: 40px;
+    }
+    
+    .computer_choice_container {
+        order: 2;
+        width: 50%;
+        margin-top: 40px;
+    }
+    
+    .result_container {
+        order: 3;
+        margin-bottom: 70px;
+    }
+
+}
