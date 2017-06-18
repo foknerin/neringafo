@@ -1,0 +1,27 @@
+{
+  "name": "neringafo",
+  "version": "1.0.0",
+  "description": "Portfolio",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "node ./buildScripts/deploy.js --local-root=. --remote-root=/public_html"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/foknerin/neringafo.git"
+  },
+  "author": "Neringa",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/foknerin/neringafo/issues"
+  },
+  "homepage": "https://github.com/foknerin/neringafo#readme",
+  "devDependencies": {
+    "async": "^2.4.1",
+    "command-line-args": "^4.0.6",
+    "ftp-deploy": "^1.2.2",
+    "jsftp": "^2.0.0",
+    "jsftp-rmr": "0.0.1"
+  }
+}
