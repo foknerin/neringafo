@@ -3,8 +3,7 @@
 var async = require('async');
 var commandLineArgs = require('command-line-args');
 var fs = require('fs');
-var JSFtp = require("jsftp");
-JSFtp = require('jsftp-rmr')(JSFtp); // decorate 'jsFtp' with a new method 'rmr'
+var FtpClient = require('ftp');
 var FtpDeploy = require('ftp-deploy');
 
 // Runs the tasks array of functions in series, each passing their results to the next in the array.
@@ -32,10 +31,17 @@ async.waterfall([
   getConfiguration,
   populateRemoteRoot,
   populatePassword,
-  //clean,
+  clean,
   deploy
-], function (err, result) {
-  // result now equals 'done'
+], function (err, isSuccess) {
+  if (err) {
+    console.log(err);
+  }
+  if (isSuccess) {
+    console.log('100%\tDeployment complete.');
+  } else {
+    console.log('Deployment failed.');
+  }
 });
 
 function getConfiguration(callback) {
@@ -61,8 +67,7 @@ function populateRemoteRoot(config, callback) {
   var options = commandLineArgs(optionDefinitions);
 
   if (!options['local-root'] || !options['remote-root']) {
-    console.log('Please provide the --local-root and --remote-root command line arguments.');
-    callback('--local-root and --remote-root are required');
+    callback('The --local-root and --remote-root command line parameters are required');
   } else {
     config.localRoot = options['local-root'];
     config.remoteRoot = options['remote-root'];
@@ -71,17 +76,16 @@ function populateRemoteRoot(config, callback) {
 }
 
 function populatePassword(config, callback) {
+  console.log('Checking for the ftp password file at \'' + config.passwordFilePath + '\'.');
   fs.access(config.passwordFilePath, fs.constants.F_OK | fs.constants.R_OK, function(err) {
     if (err) {
-      console.log('Please create a text file containing the ftp deployment password under \'' + config.passwordFilePath +'\' and make sure it is readable.\n' + err);
       callback(err);
     } else {
+      console.log('Reading the ftp password file.');
       fs.readFile(config.passwordFilePath, 'utf8', function(err, result) {
         if (err) {
-          console.log('Some other error happened while trying to read the password file under \'' + config.passwordFilePath + '\'.\n' + err);
           callback(err);
         } else {
-          console.log('The password was retrieved successfully from \'' + config.passwordFilePath + '\'.');
           config.password = result.trim();
           callback(null, config);
         }
@@ -92,28 +96,47 @@ function populatePassword(config, callback) {
 
 function clean(config, callback) {
 
-  var jsFtp = new JSFtp({
-      host: config.host,
-      port: config.port,
-      user: config.username,
-      pass: config.password
-    });
+  var ftpClient = new FtpClient();
 
-  jsFtp.rmr(config.remoteRoot, function (err) {
+  console.log('Creating ftp connection to clean the remote root directory.');
 
-    jsFtp.raw("quit", function(err, data) {
+  ftpClient.connect({
+    host: config.host,
+    port: config.port,
+    user: config.username,
+    password: config.password
+  });
+
+  ftpClient.on('ready', function() {
+    console.log('Making sure the remote root directory \'' + config.remoteRoot + '\' exists.');
+    ftpClient.mkdir(config.remoteRoot, true, function(err) {
       if (err) {
-        console.error('Error occurred while trying to close the ftp connection.\n' + err);
+        ftpClient.end();
+        callback(err);
+      } else {
+        console.log('Removing the remote root directory.');
+        ftpClient.rmdir(config.remoteRoot, true, function(err) {
+          if (err) {
+            ftpClient.end();
+            callback(err);
+          } else {
+            console.log('Recreating the remote root directory.');
+            ftpClient.mkdir(config.remoteRoot, false, function(err) {
+              ftpClient.end();
+              if (err) {
+                callback(err);
+              } else {
+                callback(null, config);
+              }
+            });
+          }
+        });
       }
     });
+  });
 
-    if (err) {
-      console.log('Error occurred while removing the existing files from the target deployment directory \'' + config.remoteRoot + '\'.');
-      callback(err);
-    } else {
-      console.log('Successfully removed the existing files from the target deployment directory \'' + config.remoteRoot + '\'.');
-      callback(null, config);
-    }
+  ftpClient.on('error', function(err) {
+    callback(err);
   });
 }
 
@@ -121,18 +144,18 @@ function deploy(config, callback) {
 
   var ftpDeploy = new FtpDeploy();
 
+  console.log('Deploying files:');
+
   ftpDeploy.deploy(config, function (err) {
     if (err) {
-      console.log('Deployment has failed.');
       callback(err);
     } else {
-      console.log('100%\tDeployment completed successfully.');
-      callback();
+      callback(null, true);
     }
   });
 
-  ftpDeploy.on('upload-error', function (data) {
-    console.log('An error happened during transfer of file \'' + data.relativePath + '\'.\n' + data.err);
+  ftpDeploy.once('upload-error', function (data) {
+    callback('An error happened during transfer of file \'' + data.relativePath + '\'.\n' + data.err);
   });
 
   ftpDeploy.on('uploaded', function(data) {
